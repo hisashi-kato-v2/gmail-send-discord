@@ -16,22 +16,28 @@ const getSubjectMapping = (subject) => {
     .find(([key, _]) => subject.includes(key))?.[1] || SUBJECT_MAPPINGS['default'];
 };
 
+// TODO:必要に応じてMarkdownに変換
 const convertHtmlToDiscordFormat = (html) => {
-  // HTMLをプレーンテキストに変換
-  let text = html.replace(/<[^>]*>/g, '');
-
-  // 必要に応じてMarkdownに変換
-  // 例：強調表示、リスト、リンクなど
-
-  return text;
+  return html
+    .replace(/&nbsp;/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
 }
+
 
 const extractMessageInfo = (message) => {
   const subject = message.getSubject();
   const { title, color, isTarget } = getSubjectMapping(subject);
 
   if (isTarget) {
-    const description = convertHtmlToDiscordFormat(message.getBody()).slice(0, 700);
+    const bodyText = convertHtmlToDiscordFormat(message.getBody());
+    let description = bodyText.slice(0, 700);
+
+    // 700文字を超える場合は末尾に…を追加
+    if (bodyText.length > 700) {
+      description += '（…続く）';
+    }
+
     return {
       embeds: [{ 
         subject: title || subject.replace("Fwd: ", "") || 'その他',
@@ -46,7 +52,7 @@ const extractMessageInfo = (message) => {
 
 const checkNewEmails = () => {
   const threads = GmailApp.search('is:unread');
-
+  
   for (const thread of threads) {
     const messageList = thread.getMessages();
     for (const message of messageList) {
