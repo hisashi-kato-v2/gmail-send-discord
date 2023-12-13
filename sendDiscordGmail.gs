@@ -16,16 +16,27 @@ const getSubjectMapping = (subject) => {
     .find(([key, _]) => subject.includes(key))?.[1] || SUBJECT_MAPPINGS['default'];
 };
 
+const convertHtmlToDiscordFormat = (html) => {
+  // HTMLをプレーンテキストに変換
+  let text = html.replace(/<[^>]*>/g, '');
+
+  // 必要に応じてMarkdownに変換
+  // 例：強調表示、リスト、リンクなど
+
+  return text;
+}
+
 const extractMessageInfo = (message) => {
   const subject = message.getSubject();
   const { title, color, isTarget } = getSubjectMapping(subject);
 
   if (isTarget) {
+    const description = convertHtmlToDiscordFormat(message.getBody()).slice(0, 700);
     return {
       embeds: [{ 
         subject: title || subject.replace("Fwd: ", "") || 'その他',
         date: message.getDate().toLocaleString(),
-        description: message.getBody().slice(0, 700),
+        description,
         color
       }]
     };
