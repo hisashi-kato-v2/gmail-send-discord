@@ -5,6 +5,7 @@ const SUBJECT_MAPPINGS = {
   'ご家庭から申し込みがありました': { title: 'ご家庭申し込み', color: 0x0000FF, isTarget: true },
   'ボランティアの応募がありました': { title: 'ボランティア申し込み', color: 0xFF0000, isTarget: true },
   'Asana': { title: 'Asana', color: 0x9ACD32, isTarget: false },
+  'ワークスペース': { title: 'Asana', color: 0x9ACD32, isTarget: false },
   'サンタを呼ぶ応募フォーム変更': { title: 'フォーム変更', color: 0x9A0000, isTarget: false },
   'アンケート': { title: 'ルドルフアンケート', color: 0xFFFF00, isTarget: true },
   'default': { title: '', color: 0x800080, isTarget: true }
@@ -16,14 +17,11 @@ const getSubjectMapping = (subject) => {
     .find(([key, _]) => subject.includes(key))?.[1] || SUBJECT_MAPPINGS['default'];
 };
 
-// TODO:必要に応じてMarkdownに変換
 const convertHtmlToDiscordFormat = (html) => {
   return html
     .replace(/&nbsp;/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]*>/g, '')
 }
-
 
 const extractMessageInfo = (message) => {
   const subject = message.getSubject();
